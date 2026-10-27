@@ -1,0 +1,225 @@
+@font-face {
+  font-family: Manuka;
+  src: url("./fonts/ManukaBold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #000;
+  --ink: #f3f0e8;
+  --card-w: 26vw;
+  --soon-w: 72vw;
+  --card-ratio: 0.649;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: clip;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: Manuka, sans-serif;
+  font-weight: 700;
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  width: 100%;
+}
+
+.hero__media {
+  position: relative;
+  width: 100%;
+}
+
+.hero__poster {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 700ms ease;
+}
+
+.hero__media.is-playing .hero__video {
+  opacity: 1;
+}
+
+.hero__media::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  height: 16%;
+  background: linear-gradient(to bottom, transparent, #000);
+  pointer-events: none;
+}
+
+.deck {
+  width: 100%;
+  padding-top: 120px;
+}
+
+.deck__stage {
+  position: relative;
+  height: calc(var(--card-w) / var(--card-ratio));
+  perspective: calc(var(--card-w) * 6.5);
+  perspective-origin: 50% 50%;
+  touch-action: pan-y;
+  cursor: grab;
+  outline: none;
+  user-select: none;
+}
+
+.deck__ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.deck__stage:focus-visible {
+  outline: 1px solid rgba(243, 240, 232, 0.4);
+  outline-offset: 10px;
+}
+
+.deck__stage.is-dragging {
+  cursor: grabbing;
+}
+
+.deck__stage.is-static {
+  cursor: default;
+}
+
+.deck__card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--card-w);
+  height: 100%;
+  margin-left: calc(var(--card-w) / -2);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.deck__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.deck__caption {
+  min-height: 3.5em;
+  margin: 60px auto 0;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.deck__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 10%;
+  text-transform: uppercase;
+}
+
+.deck__line {
+  margin: 2px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 10%;
+  color: rgba(243, 240, 232, 0.9);
+}
+
+.deck__title[hidden],
+.deck__line[hidden] {
+  display: none;
+}
+
+.tail {
+  width: 100%;
+  margin-top: auto;
+  padding-top: clamp(24px, 3vh, 40px);
+}
+
+.soon {
+  display: flex;
+  justify-content: center;
+  padding: 220px 5vw 0;
+}
+
+.smoke {
+  padding-top: 50px;
+}
+
+.soon img,
+.smoke img {
+  display: block;
+  height: auto;
+  user-select: none;
+}
+
+.soon img {
+  width: var(--soon-w);
+}
+
+.smoke img {
+  width: 100%;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 42%);
+  mask-image: linear-gradient(to bottom, transparent, #000 42%);
+}
+
+@media (max-width: 720px) {
+  .deck__title {
+    font-size: 12px;
+    letter-spacing: 0.36em;
+    text-indent: 0.36em;
+  }
+
+  .deck__line {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__video {
+    transition: none;
+  }
+}

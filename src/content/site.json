@@ -1,0 +1,86 @@
+{
+  "title": "LEX",
+  "hero": {
+    "video": "/media/hero.mp4",
+    "poster": "/media/hero-poster.webp",
+    "alt": "LEX",
+    "width": 1214,
+    "height": 660
+  },
+  "cards": [
+    {
+      "image": "/media/cards/01_genesis.webp",
+      "alt": "Genesis",
+      "title": "GENESIS",
+      "caption": "\"NO LIFE ENTERS THIS WORLD FOR FREE.\"",
+      "active": true
+    },
+    {
+      "image": "/media/cards/02_kitrina_fota.webp",
+      "alt": "Kitrina Fota",
+      "title": "KITRINA FOTA",
+      "caption": "\"THE LAMPS HUM LOUDER WHEN SOMEONE IS NEAR.\""
+    },
+    {
+      "image": "/media/cards/03_black_out.webp",
+      "alt": "Black Out",
+      "title": "BLACK OUT",
+      "caption": "\"DARKNESS HAS ITS OWN RULES.\""
+    },
+    {
+      "image": "/media/cards/04_kavatzodromoi.webp",
+      "alt": "Kavatzodromoi",
+      "title": "KAVATZODROMOI",
+      "caption": "\"THE CITY KEEPS WHAT PEOPLE LEAVE BEHIND.\""
+    },
+    {
+      "image": "/media/cards/05_fime.webp",
+      "alt": "Fime",
+      "title": "FIME",
+      "caption": "\"NOT EVERY REFLECTION TELLS THE TRUTH.\""
+    },
+    {
+      "image": "/media/cards/06_kftn.webp",
+      "alt": "K.F.T.N",
+      "title": "K.F.T.N",
+      "caption": "\"SNOW BURIES THE SLOW.\"",
+      "active": true
+    },
+    {
+      "image": "/media/cards/07_neraida.webp",
+      "alt": "Neraida",
+      "title": "NERAIDA",
+      "caption": "\"SOME SWEAR THEY SAW HER. OTHERS ONLY REMEMBER THE LIGHT.\""
+    },
+    {
+      "image": "/media/cards/08_gangster.webp",
+      "alt": "Gangster",
+      "title": "GANGSTER",
+      "caption": "\"EVERY DEBT COMES DUE.\""
+    },
+    {
+      "image": "/media/cards/09_drakos.webp",
+      "alt": "Drakos",
+      "title": "DRAKOS",
+      "caption": "\"THE FIRE WAS HERE BEFORE US.\""
+    },
+    {
+      "image": "/media/cards/10_skia.webp",
+      "alt": "Skia",
+      "title": "SKIA",
+      "caption": "\"THE CITY SANK INTO SHADOW.\""
+    }
+  ],
+  "comingSoon": {
+    "image": "/media/coming-soon.webp",
+    "alt": "Coming soon",
+    "width": 1500,
+    "height": 144
+  },
+  "smoke": {
+    "image": "/media/smoke.webp",
+    "alt": "",
+    "width": 1214,
+    "height": 96
+  }
+}
