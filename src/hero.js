@@ -6,11 +6,35 @@ function videoType(src) {
   return "";
 }
 
-function canAutoplay(hero) {
-  if (!hero?.video) return false;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  if (navigator.connection?.saveData) return false;
-  return true;
+function filled(value) {
+  return typeof value === "string" && value.trim() !== "";
+}
+
+function prefersStill() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+  if (navigator.connection?.saveData) return true;
+  return false;
+}
+
+function chooseHero(hero) {
+  const mobile = window.matchMedia("(max-width: 720px)").matches;
+  const video = mobile && filled(hero.videoMobile) ? hero.videoMobile.trim() : hero.video;
+  const poster = mobile && filled(hero.posterMobile) ? hero.posterMobile.trim() : hero.poster;
+  const mobilePoster = mobile && filled(hero.posterMobile);
+  return {
+    video: filled(video) ? video.trim() : "",
+    poster,
+    width: mobilePoster ? hero.widthMobile : hero.width,
+    height: mobilePoster ? hero.heightMobile : hero.height,
+  };
+}
+
+function applyFrame(img, choice) {
+  if (img.getAttribute("src") !== choice.poster) img.src = choice.poster;
+  if (choice.width) img.width = choice.width;
+  else img.removeAttribute("width");
+  if (choice.height) img.height = choice.height;
+  else img.removeAttribute("height");
 }
 
 export function mountHero(section, hero) {
@@ -21,16 +45,27 @@ export function mountHero(section, hero) {
 
   const poster = document.createElement("img");
   poster.className = "hero__poster";
-  poster.src = hero.poster;
   poster.alt = hero.alt || "";
   poster.draggable = false;
   poster.decoding = "async";
-  if (hero.width) poster.width = hero.width;
-  if (hero.height) poster.height = hero.height;
+  let current = chooseHero(hero);
+  applyFrame(poster, current);
   media.append(poster);
   section.append(media);
 
-  if (!canAutoplay(hero)) return;
+  const query = window.matchMedia("(max-width: 720px)");
+  let syncVideo = () => {};
+
+  query.addEventListener("change", () => {
+    const next = chooseHero(hero);
+    const videoChanged = next.video !== current.video;
+    const posterChanged = next.poster !== current.poster;
+    current = next;
+    if (posterChanged) applyFrame(poster, current);
+    if (videoChanged) syncVideo();
+  });
+
+  if (prefersStill() || !current.video) return;
 
   const video = document.createElement("video");
   video.className = "hero__video";
@@ -40,16 +75,12 @@ export function mountHero(section, hero) {
   video.autoplay = true;
   video.playsInline = true;
   video.preload = "auto";
-  video.poster = hero.poster;
   video.setAttribute("muted", "");
   video.setAttribute("playsinline", "");
   video.setAttribute("webkit-playsinline", "");
   video.setAttribute("aria-hidden", "true");
 
   const source = document.createElement("source");
-  source.src = hero.video;
-  const type = videoType(hero.video);
-  if (type) source.type = type;
   video.append(source);
   media.append(video);
 
@@ -64,6 +95,24 @@ export function mountHero(section, hero) {
     section.dataset.state = "poster";
   };
 
+  syncVideo = () => {
+    if (!current.video) {
+      conceal();
+      video.removeAttribute("src");
+      source.removeAttribute("src");
+      video.load();
+      return;
+    }
+    source.src = current.video;
+    const type = videoType(current.video);
+    if (type) source.type = type;
+    else source.removeAttribute("type");
+    video.poster = current.poster;
+    conceal();
+    video.load();
+    video.play().catch(conceal);
+  };
+
   video.addEventListener("timeupdate", reveal);
   video.addEventListener("error", conceal);
   video.addEventListener("pause", () => {
@@ -72,5 +121,5 @@ export function mountHero(section, hero) {
     }, 320);
   });
 
-  video.play().catch(conceal);
+  syncVideo();
 }

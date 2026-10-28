@@ -72,6 +72,10 @@ export function mountCards(section, items) {
     return card ? card.offsetWidth : 180;
   }
 
+  function isMobile() {
+    return window.matchMedia("(max-width: 720px)").matches;
+  }
+
   function ringRadius() {
     const angle = (2.5 * Math.PI) / count;
     const reach = Math.max(cardWidth() * 0.95, stage.clientWidth * 0.18);
@@ -79,16 +83,18 @@ export function mountCards(section, items) {
   }
 
   function stepSize() {
+    if (isMobile()) return Math.max(90, stage.clientWidth * 0.46);
     const step = (2 * Math.PI) / count;
     return Math.max(110, ringRadius() * step * 0.55);
   }
 
   function render() {
     const width = cardWidth();
-    const radius = ringRadius();
+    const mobile = isMobile();
+    const radius = mobile ? 0 : ringRadius();
     const step = 360 / count;
     const active = mod(Math.round(index), count);
-    ring.style.transform = `translateZ(${-(radius - width * 0.22)}px)`;
+    ring.style.transform = mobile ? "none" : `translateZ(${-(radius - width * 0.22)}px)`;
 
     models.forEach((card, cardIndex) => {
       const offset = wrapOffset(cardIndex, index, count);
@@ -96,6 +102,26 @@ export function mountCards(section, items) {
       const facing = Math.cos((angle * Math.PI) / 180);
 
       card.el.toggleAttribute("aria-hidden", cardIndex !== active);
+
+      if (mobile) {
+        const sign = Math.sign(offset) || 0;
+        const abs = Math.abs(offset);
+        const edge = stage.clientWidth / 2;
+        const along = Math.min(abs, 1);
+        const behind = Math.min(Math.max(abs - 1, 0), 1);
+        const x = sign * edge * 0.98 * along * (1 - behind);
+        const ry = sign * (38 * along + 70 * behind);
+        const scale = clamp(1 - along * 0.56 - behind * 0.14, 0.28, 1);
+        const z = -width * (0.05 * along + 0.42 * behind);
+        card.el.style.zIndex = String(100 - Math.round(abs * 10));
+        card.el.style.transform = `translate3d(${x}px, 0, ${z}px) rotateY(${ry}deg) scale(${scale})`;
+        const fade = abs <= 1 ? 1 : abs < 1.65 ? 1 - (abs - 1) / 0.65 : 0;
+        card.img.style.opacity = String(fade);
+        card.el.style.pointerEvents = fade < 0.05 ? "none" : "auto";
+        card.img.style.filter = `brightness(${0.84 + (abs < 0.2 ? 0.16 : 0)})`;
+        return;
+      }
+
       card.el.style.zIndex = "";
       const scale = clamp(0.7 + facing * 0.3, 0.7, 1);
       card.el.style.transform = `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${-angle * 0.22}deg) scale(${scale})`;

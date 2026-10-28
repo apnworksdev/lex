@@ -2,7 +2,9 @@
   "title": "LEX",
   "hero": {
     "video": "/media/hero.mp4",
+    "videoMobile": "/media/hero-mobile.mp4",
     "poster": "/media/hero-poster.webp",
+    "posterMobile": "/media/hero-poster-mobile.webp",
     "alt": "LEX",
     "width": 1214,
     "height": 660
