@@ -9,7 +9,7 @@
 :root {
   --bg: #000;
   --ink: #f3f0e8;
-  --card-w: 26vw;
+  --card-w: 40vw;
   --soon-w: 72vw;
   --card-ratio: 0.649;
   color-scheme: dark;
@@ -96,7 +96,7 @@ video {
 .deck__stage {
   position: relative;
   height: calc(var(--card-w) / var(--card-ratio));
-  perspective: calc(var(--card-w) * 6.5);
+  perspective: 1200px;
   perspective-origin: 50% 50%;
   touch-action: pan-y;
   cursor: grab;
@@ -142,18 +142,34 @@ video {
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+  backface-visibility: hidden;
+}
+
+.deck__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+.deck__back img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scaleX(-1);
+  backface-visibility: visible;
 }
 
 .deck__caption {
   min-height: 3.5em;
-  margin: 60px auto 0;
+  margin: 0 auto 0;
   padding: 0 20px;
   text-align: center;
 }
 
 .deck__title {
   margin: 0;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 10%;
   text-transform: uppercase;
@@ -161,7 +177,7 @@ video {
 
 .deck__line {
   margin: 2px 0 0;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: 10%;

@@ -46,13 +46,24 @@ export function mountCards(section, items) {
     el.dataset.index = String(cardIndex);
 
     const img = document.createElement("img");
+    img.className = "deck__face";
     img.src = card.image;
     img.alt = card.alt || card.title || "";
     img.draggable = false;
     img.decoding = "async";
-    el.append(img);
+
+    const back = document.createElement("div");
+    back.className = "deck__back";
+    back.setAttribute("aria-hidden", "true");
+    const backImg = document.createElement("img");
+    backImg.src = card.image;
+    backImg.alt = "";
+    backImg.draggable = false;
+    back.append(backImg);
+
+    el.append(img, back);
     ring.append(el);
-    return { ...card, el, img };
+    return { ...card, el, img, back };
   });
 
   const caption = document.createElement("div");
@@ -76,30 +87,46 @@ export function mountCards(section, items) {
     return window.matchMedia("(max-width: 720px)").matches;
   }
 
-  function ringRadius() {
-    const angle = (2.5 * Math.PI) / count;
-    const reach = Math.max(cardWidth() * 0.95, stage.clientWidth * 0.18);
-    return reach / Math.sin(angle);
-  }
-
   function stepSize() {
     if (isMobile()) return Math.max(90, stage.clientWidth * 0.46);
-    const step = (2 * Math.PI) / count;
-    return Math.max(110, ringRadius() * step * 0.55);
+    return Math.max(160, stage.clientWidth * 0.24);
+  }
+
+  function desktopPose(offset) {
+    const sign = Math.sign(offset) || 0;
+    const abs = Math.abs(offset);
+    const stageW = stage.clientWidth;
+    const width = cardWidth();
+    const keys = [
+      { x: 0, ry: 0, scale: 1, z: 0, opacity: 1 },
+      { x: stageW * 0.36, ry: 50, scale: 0.5, z: -width * 0.12, opacity: 0.72 },
+      { x: stageW * 0.24, ry: 180, scale: 0.2, z: -width * 0.45, opacity: 0.4 },
+      { x: 0, ry: 180, scale: 0.1, z: -width * 1, opacity: 0 },
+    ];
+    const span = keys.length - 1;
+    const clamped = Math.min(abs, span);
+    const i = Math.min(Math.floor(clamped), span - 1);
+    const t = clamped - i;
+    const from = keys[i];
+    const to = keys[i + 1];
+    const mix = (start, end) => start + (end - start) * t;
+    return {
+      x: sign * mix(from.x, to.x),
+      ry: sign * mix(from.ry, to.ry),
+      scale: mix(from.scale, to.scale),
+      z: mix(from.z, to.z),
+      opacity: mix(from.opacity, to.opacity),
+    };
   }
 
   function render() {
     const width = cardWidth();
     const mobile = isMobile();
-    const radius = mobile ? 0 : ringRadius();
-    const step = 360 / count;
     const active = mod(Math.round(index), count);
-    ring.style.transform = mobile ? "none" : `translateZ(${-(radius - width * 0.22)}px)`;
+    ring.style.transform = "none";
 
     models.forEach((card, cardIndex) => {
       const offset = wrapOffset(cardIndex, index, count);
-      const angle = offset * step;
-      const facing = Math.cos((angle * Math.PI) / 180);
 
       card.el.toggleAttribute("aria-hidden", cardIndex !== active);
 
@@ -117,21 +144,21 @@ export function mountCards(section, items) {
         card.el.style.transform = `translate3d(${x}px, 0, ${z}px) rotateY(${ry}deg) scale(${scale})`;
         const fade = abs <= 1 ? 1 : abs < 1.65 ? 1 - (abs - 1) / 0.65 : 0;
         card.img.style.opacity = String(fade);
+        card.back.style.opacity = "0";
         card.el.style.pointerEvents = fade < 0.05 ? "none" : "auto";
         card.img.style.filter = `brightness(${0.84 + (abs < 0.2 ? 0.16 : 0)})`;
         return;
       }
 
-      card.el.style.zIndex = "";
-      const scale = clamp(0.7 + facing * 0.3, 0.7, 1);
-      card.el.style.transform = `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${-angle * 0.22}deg) scale(${scale})`;
-
-      const fromBack = count / 2 - Math.abs(offset);
-      const frontFade = Math.max(0.6, clamp((facing + 0.08) / 0.42, 0, 1));
-      const fade = fromBack <= 1 ? 0 : fromBack < 2 ? frontFade * (fromBack - 1) : frontFade;
+      const pose = desktopPose(offset);
+      const abs = Math.abs(offset);
+      card.el.style.zIndex = String(80 - Math.round(abs * 10));
+      card.el.style.transform = `translate3d(${pose.x}px, 0, ${pose.z}px) rotateY(${pose.ry}deg) scale(${pose.scale})`;
+      const fade = pose.opacity;
       card.img.style.opacity = String(fade);
+      card.back.style.opacity = String(fade);
       card.el.style.pointerEvents = fade < 0.05 ? "none" : "auto";
-      card.img.style.filter = `brightness(${0.78 + Math.max(facing, 0) * 0.22})`;
+      card.img.style.filter = "brightness(1)";
     });
 
     if (active === shown) return;
